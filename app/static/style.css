@@ -1,0 +1,91 @@
+/* General styling for body */
+body {
+    font-family: 'Cinzel', serif;
+    background-image: url('/static/yggdrasil-background.webp'); /* Add your background image here */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh; /* Ensure body takes up the full height of the viewport */
+    display: flex;
+    flex-direction: column; /* Flexbox layout */
+}
+
+/* Flexbox container for content */
+.content-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/* Centering the content and adding a blur effect */
+.content {
+    background-color: rgba(0, 0, 0, 0.6); /* Dark semi-transparent background */
+    padding: 20px 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px); /* Background blur */
+    max-width: 800px;
+    width: 90%; /* Full width on small screens */
+    box-sizing: border-box;
+    text-align: center;
+    color: #e0d4b3; /* Soft golden text for readability */
+    flex-grow: 1; /* Allow content to grow and push footer down */
+    margin: auto; /* Center content vertically */
+}
+
+/* Footer styling */
+/* Footer styling */
+footer {
+    background-color: #262626;
+    color: #b5b5b5;
+    padding: 10px;
+    text-align: center;
+    width: 100%; /* Full width for the footer */
+    position: relative;
+    bottom: 0;
+    margin-top: auto; /* Push the footer to the bottom when content is shorter than the screen */
+}
+
+/* Styling for headings */
+h1, h2 {
+    color: #6b8e23; /* Green inspired by nature */
+}
+
+/* Styling for navigation links */
+nav a {
+    font-size: 1.2em;
+    color: #b5b5b5;
+    text-decoration: none;
+    margin: 0 15px;
+}
+
+nav a:hover {
+    color: #6b8e23; /* Highlight green on hover */
+    border-bottom: 2px solid #6b8e23;
+}
+
+form button {
+    background-color: #6b8e23; /* Earthy green background */
+    color: #ffffff; /* White text */
+    border: 2px solid #556b2f; /* Slightly darker green border */
+    padding: 12px 24px; /* Extra padding for better click area */
+    font-size: 1.1em; /* Larger font size */
+    border-radius: 8px; /* Rounded corners */
+    cursor: pointer; /* Show pointer cursor on hover */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+}
+
+/* Hover effect for the button */
+form button:hover {
+    background-color: #556b2f; /* Darker green on hover */
+    transform: scale(1.05); /* Slightly enlarge the button on hover */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+}
+
+/* Focus effect for accessibility */
+form button:focus {
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 0 4px rgba(107, 142, 35, 0.5); /* Green focus outline for accessibility */
+}

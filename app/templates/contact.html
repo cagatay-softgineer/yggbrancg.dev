@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <title>Contact Us</title>
+</head>
+<body>
+    <div class="content">
+        <h1>Contact Us</h1>
+        <section>
+            <p>If you have any questions, feedback, or want to learn more about SyncBranch and Yggbranch.dev, feel free to reach out to us through the form below.</p>
+        </section>
+
+        <form action="/send-feedback/" method="post">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required><br><br>
+            
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br><br>
+            
+            <label for="message">Message:</label><br>
+            <textarea id="message" name="message" rows="4" cols="50" required></textarea><br><br>
+            
+            <button type="submit">Send Feedback</button>
+        </form>
+
+        <nav>
+            <a href="/">Home</a> | 
+            <a href="/about/">About Us</a>
+        </nav>
+    </div>
+
+    <footer>
+        <p>© 2024 Yggbranch.dev</p>
+    </footer>
+</body>
+</html>
