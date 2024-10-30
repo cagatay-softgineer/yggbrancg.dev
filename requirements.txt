@@ -1,7 +1,0 @@
-fastapi==0.88.0        # FastAPI framework
-uvicorn==0.20.0        # ASGI server to run FastAPI apps
-Jinja2==3.1.2          # Template engine for HTML templates
-aiofiles==23.1.0       # For handling file uploads and asynchronous file I/O
-sqlalchemy==1.4.49     # Downgrade to a version compatible with databases
-databases==0.5.5       # For asynchronous database support
-python-dotenv==1.0.0   # For environment variable management (optional)
