@@ -166,6 +166,27 @@
             margin: auto; /* Center content vertically */
             animation: slideUp 1.5s ease-in-out; /* Content slides up when loaded */
         }
+        .play-button {
+            font-family: 'Skranji', serif; /* Use Noto Sans Runic for headers */
+            background-color: #1a2980; /* Blue */
+            color: #f6f6f6; /* White text */
+            border: 2px solid #84fbfb; /* Light blue border */
+            padding: 12px 24px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+            animation: fadeIn 1s ease-in-out forwards;
+        }
+        
+        .play-button:hover {
+            background-color: #84fbfb; /* Light blue on hover */
+            transform: scale(1.1); /* Slightly enlarge the button on hover */
+            box-shadow: 0 4px 12px rgba(5, 3, 25, 0.2); /* Add shadow on hover */
+        }
+        .help-button, .close-help{
+            font-family: 'Skranji', serif; /* Use Noto Sans Runic for headers */
+        }
     </style>
 </head>
 <body>
