@@ -110,6 +110,7 @@ nav a:hover {
 
 /* Button styling with animation */
 form button {
+    font-family: 'Skranji', serif; /* Use Noto Sans Runic for headers */
     background-color: #1a2980; /* Blue */
     color: #f6f6f6; /* White text */
     border: 2px solid #84fbfb; /* Light blue border */
@@ -128,6 +129,7 @@ form button:hover {
 }
 
 .play-button {
+    font-family: 'Skranji', serif; /* Use Noto Sans Runic for headers */
     background-color: #1a2980; /* Blue */
     color: #f6f6f6; /* White text */
     border: 2px solid #84fbfb; /* Light blue border */
@@ -143,6 +145,9 @@ form button:hover {
     background-color: #84fbfb; /* Light blue on hover */
     transform: scale(1.1); /* Slightly enlarge the button on hover */
     box-shadow: 0 4px 12px rgba(5, 3, 25, 0.2); /* Add shadow on hover */
+}
+.help-button, .close-help{
+    font-family: 'Skranji', serif; /* Use Noto Sans Runic for headers */
 }
 
 /* Footer styling */
