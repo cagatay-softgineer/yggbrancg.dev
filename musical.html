@@ -182,17 +182,72 @@
         .play-button:hover {
             background-color: #84fbfb; /* Light blue on hover */
             transform: scale(1.1); /* Slightly enlarge the button on hover */
-            box-shadow: 0 4px 12px rgba(5, 3, 25, 0.2); /* Add shadow on hover */
+            box-shadow: 0 4px 12px rgba(41,41,41, 0.2); /* Add shadow on hover */
         }
         .help-button, .close-help{
             font-family: 'Skranji', serif; /* Use Noto Sans Runic for headers */
         }
+        .octave-selector {
+            text-align: center;
+            font-size: 16px;
+            font-family: 'Skranji', serif; /* Using Skranji for a unique style */
+            color: #f6f6f6; /* Dark color for better readability */
+            background-color: rgba(246, 246, 246, 0.2); /* Light background for contrast */
+            padding: 10px;
+            border-radius: 8px; /* Rounded corners for a smoother look */
+            box-shadow: 0px 4px 6px rgba(41,41,41, 0.1); /* Soft shadow for depth */
+        }
+        
+        .octave-dropdown{
+            font-size: 16px;
+            padding: 8px 12px; /* Padding for comfortable interaction */
+            border: 1px solid #f6f6f6; /* Subtle border for structure */
+            border-radius: 4px; /* Rounded corners */
+            background-color: rgba(246, 246, 246, 0.2);
+            color: #f6f6f6; /* Dark text color */
+            cursor: pointer; /* Pointer cursor to indicate dropdown interaction */
+            transition: background-color 0.3s ease; /* Smooth hover transition */
+        }
+        .octave-dropdown-option{
+            font-size: 16px;
+            padding: 8px 12px; /* Padding for comfortable interaction */
+            border: 1px solid #f6f6f6; /* Subtle border for structure */
+            border-radius: 4px; /* Rounded corners */
+            background-color: rgba(246, 246, 246, 0.2);
+            color: #292929; /* Dark text color */
+            cursor: pointer; /* Pointer cursor to indicate dropdown interaction */
+            transition: background-color 0.3s ease; /* Smooth hover transition */
+        }
+        .octave-dropdown-option:hover{
+            background-color: rgba(41, 41, 41, 0.2);
+        }
+        
+        .octave-dropdown:hover {
+            background-color: rgba(246, 246, 246, 0.1);
+        }
+
     </style>
 </head>
 <body>
     <div class="content-container">
         <div class="content">
     <h1 class="musical-title">Musical Password with Staff and Sequence Display</h1>
+
+            <!-- Octave Selector -->
+            <div class="octave-selector">
+                <label for="octaveSelect">Select Octave:</label>
+                <select id="octaveSelect" class="octave-dropdown" onchange="changeOctave()">
+                    <option class="octave-dropdown-option" value="0">Octave 0</option>
+                    <option class="octave-dropdown-option" value="1">Octave 1</option>
+                    <option class="octave-dropdown-option" value="2">Octave 2</option>
+                    <option class="octave-dropdown-option" value="3">Octave 3</option>
+                    <option class="octave-dropdown-option" value="4" selected>Octave 4</option>
+                    <option class="octave-dropdown-option" value="5">Octave 5</option>
+                    <option class="octave-dropdown-option" value="6">Octave 6</option>
+                    <option class="octave-dropdown-option" value="7">Octave 7</option>
+                    <option class="octave-dropdown-option" value="8">Octave 8</option>
+                </select>
+            </div>
 
     <div class="staff" id="staff">
         <!-- The columns will be generated here automatically by JavaScript -->
@@ -230,114 +285,156 @@
         </a>
     </p>    
 </footer>
-    
-    <script>
 
-        function toggleHelp() {
-            const helpOverlay = document.getElementById("helpOverlay");
-            helpOverlay.style.display = helpOverlay.style.display === "flex" ? "none" : "flex";
+<script>
+    function toggleHelp() {
+        const helpOverlay = document.getElementById("helpOverlay");
+        helpOverlay.style.display = helpOverlay.style.display === "flex" ? "none" : "flex";
+    }
+
+    let audioCtx;
+    let passwordSequence = []; // Stores the sequence of notes and durations
+    let currentOctave = 4; // Default octave
+    const durations = [250, 500, 750, 1000]; // Predefined durations
+    const durationIcons = ['𝅘𝅥𝅮', '𝅘𝅥', '𝅗𝅥', '𝅝']; // Musical note icons
+    let currentDurationIndex = 0; // Start with 250ms
+
+    // Change octave for all notes based on the dropdown selection
+    function changeOctave() {
+        const octaveSelect = document.getElementById("octaveSelect");
+        currentOctave = parseInt(octaveSelect.value, 10);
+
+        // Update the octave for all notes in passwordSequence
+        passwordSequence = passwordSequence.map(noteObj => ({
+            ...noteObj,
+            note: noteObj.note.slice(0, -1) + currentOctave // Update only the octave part
+        }));
+
+        // Refresh notes display on the staff
+        refreshStaffDisplay();
+    }
+
+    // Define base frequencies for notes without octaves
+    const noteFrequencies = {
+        'F': 349.23,  // F
+        'E': 329.63,  // E
+        'D': 293.66,  // D
+        'C': 261.63,  // C
+        'B': 246.94,  // B
+        'A': 220.00,  // A
+        'G': 196.00   // G
+    };
+
+    // Function to initialize the staff with 32 columns automatically
+    function initializeStaff() {
+        const staff = document.getElementById('staff');
+        const notesInColumn = ['F', 'E', 'D', 'C', 'B', 'A', 'G'];
+
+        // Create 32 columns
+        for (let i = 0; i < 32; i++) {
+            const column = document.createElement('div');
+            column.classList.add('column');
+            column.setAttribute('data-column', i + 1);
+
+            // Create lines and spaces for each note in the column
+            notesInColumn.forEach((note, index) => {
+                const lineOrSpace = document.createElement('div');
+                lineOrSpace.classList.add(index % 2 === 0 ? 'line' : 'space');
+                lineOrSpace.style.top = `${index * 20}px`;
+                lineOrSpace.setAttribute('data-note', note);
+                lineOrSpace.onclick = () => selectNoteInColumn(lineOrSpace);
+                lineOrSpace.oncontextmenu = (event) => {
+                    event.preventDefault();
+                    removeNoteInColumn(lineOrSpace);
+                };
+
+                column.appendChild(lineOrSpace);
+            });
+
+            staff.appendChild(column);
+        }
+    }
+
+    // Initialize the staff when the page loads
+    window.onload = initializeStaff;
+
+    // Function to start AudioContext
+    function startAudioContext() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    // Function to select a note in a column and cycle through durations
+    function selectNoteInColumn(element) {
+        const baseNote = element.getAttribute('data-note');
+        const column = element.parentNode.getAttribute('data-column');
+        const note = `${baseNote}${currentOctave}`; // Add octave to note
+
+        // Check if note already exists in this column
+        let noteObj = passwordSequence.find(n => n.note === note && n.column === column);
+
+        // If note doesn't exist, add it with the default duration
+        if (!noteObj) {
+            noteObj = { note, duration: durations[currentDurationIndex], column };
+            passwordSequence.push(noteObj);
+            displayNoteInColumn(element, note, currentDurationIndex);
+        } else {
+            // Cycle to the next duration
+            currentDurationIndex = (currentDurationIndex + 1) % durations.length;
+            noteObj.duration = durations[currentDurationIndex];
+            displayNoteInColumn(element, note, currentDurationIndex);
+        }
+    }
+
+    // Display the selected note with a musical icon representing the duration
+    function displayNoteInColumn(element, note, durationIndex) {
+        // Clear existing note if any in the same spot
+        const existingNote = element.querySelector('.note');
+        if (existingNote) {
+            existingNote.remove();
         }
 
-        let audioCtx;
-        let passwordSequence = []; // Stores the sequence of notes and durations
-        const durations = [250, 500, 750, 1000]; // Predefined durations
-        const durationIcons = ['𝅘𝅥𝅮', '𝅘𝅥', '𝅗𝅥', '𝅝']; // Musical note icons
-        let currentDurationIndex = 0; // Start with 250ms
-    
-        // Define notes with frequencies for playback
-        const notes = {
-            'F4': 349.23,  // F
-            'E4': 329.63,  // E
-            'D4': 293.66,  // D
-            'C4': 261.63,  // C
-            'B3': 246.94,  // B
-            'A3': 220.00,  // A
-            'G3': 196.00   // G
-        };
-    
-        // Function to initialize the staff with 32 columns automatically
-        function initializeStaff() {
-            const staff = document.getElementById('staff');
-            const notesInColumn = ['F4', 'E4', 'D4', 'C4', 'B3', 'A3', 'G3'];
-    
-            // Create 32 columns
-            for (let i = 0; i < 32; i++) {
-                const column = document.createElement('div');
-                column.classList.add('column');
-                column.setAttribute('data-column', i + 1);
-    
-                // Create lines and spaces for each note in the column
-                notesInColumn.forEach((note, index) => {
-                    const lineOrSpace = document.createElement('div');
-                    lineOrSpace.classList.add(index % 2 === 0 ? 'line' : 'space');
-                    lineOrSpace.style.top = `${index * 20}px`;
-                    lineOrSpace.setAttribute('data-note', note);
-                    lineOrSpace.onclick = () => selectNoteInColumn(lineOrSpace);
-                    lineOrSpace.oncontextmenu = (event) => {
-                        event.preventDefault();
-                        removeNoteInColumn(lineOrSpace);
-                    };
-    
-                    column.appendChild(lineOrSpace);
+        // Create and style the note element with duration icon
+        const noteElement = document.createElement('div');
+        noteElement.classList.add('note');
+        noteElement.textContent = durationIcons[durationIndex];
+        noteElement.title = `${note} (${durations[durationIndex]}ms)`;
+        noteElement.style.left = "calc(50% - 10px)";
+        element.appendChild(noteElement);
+    }
+
+    // Refresh all notes display on the staff after updating the octave
+    function refreshStaffDisplay() {
+        const staffColumns = document.querySelectorAll(".column");
+
+        // Clear and re-display all notes in passwordSequence with updated octaves
+        staffColumns.forEach(column => {
+            const columnNumber = column.getAttribute('data-column');
+            
+            // Remove existing notes in the column
+            column.querySelectorAll(".note").forEach(noteElement => noteElement.remove());
+
+            // Display notes with updated octave in the column
+            passwordSequence
+                .filter(noteObj => noteObj.column === columnNumber)
+                .forEach(noteObj => {
+                    const baseNote = noteObj.note.slice(0, -1); // Get note without octave
+                    const lineOrSpace = Array.from(column.children).find(
+                        el => el.getAttribute("data-note") === baseNote
+                    );
+                    displayNoteInColumn(lineOrSpace, noteObj.note, durations.indexOf(noteObj.duration));
                 });
-    
-                staff.appendChild(column);
-            }
-        }
-    
-        // Initialize the staff when the page loads
-        window.onload = initializeStaff;
-    
-        // Initialize AudioContext on first user interaction
-        function startAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-        }
-    
-        // Function to select a note in a column and cycle through durations
-        function selectNoteInColumn(element) {
-            const note = element.getAttribute('data-note');
-            const column = element.parentNode.getAttribute('data-column');
-    
-            // Check if note already exists in this column
-            let noteObj = passwordSequence.find(n => n.note === note && n.column === column);
-    
-            // If note doesn't exist, add it with the default duration
-            if (!noteObj) {
-                noteObj = { note, duration: durations[currentDurationIndex], column };
-                passwordSequence.push(noteObj);
-                displayNoteInColumn(element, note, currentDurationIndex);
-            } else {
-                // Cycle to the next duration
-                currentDurationIndex = (currentDurationIndex + 1) % durations.length;
-                noteObj.duration = durations[currentDurationIndex];
-                displayNoteInColumn(element, note, currentDurationIndex);
-            }
-        }
-    
-        // Display the selected note with a musical icon representing the duration
-        function displayNoteInColumn(element, note, durationIndex) {
-            // Clear existing note if any in the same spot
-            const existingNote = element.querySelector('.note');
-            if (existingNote) {
-                existingNote.remove();
-            }
-    
-            // Create and style the note element with duration icon
-            const noteElement = document.createElement('div');
-            noteElement.classList.add('note');
-            noteElement.textContent = durationIcons[durationIndex];
-            noteElement.title = `${note} (${durations[durationIndex]}ms)`;
-            noteElement.style.left = "calc(50% - 10px)";
-            element.appendChild(noteElement);
-        }
-    
-        // Remove a note on right-click
-        function removeNoteInColumn(element) {
-            const note = element.getAttribute('data-note');
-            const column = element.parentNode.getAttribute('data-column');
-    
+        });
+    }
+
+    // Remove a note on right-click
+    function removeNoteInColumn(element) {
+        const baseNote = element.getAttribute('data-note');
+        const column = element.parentNode.getAttribute('data-column');
+        const note = passwordSequence.find(n => n.note.startsWith(baseNote) && n.column === column)?.note;
+
+        if (note) {
             // Find the index of the note in the sequence and remove it
             const noteIndex = passwordSequence.findIndex(n => n.note === note && n.column === column);
             if (noteIndex > -1) {
@@ -346,65 +443,57 @@
                 if (existingNote) existingNote.remove(); // Remove from display
             }
         }
-    
-        // Function to play the password sequence with simultaneous notes in the same column
-        function playPassword() {
-            startAudioContext();
-    
-            // Group notes by column
-            const groupedByColumn = passwordSequence.reduce((groups, noteObj) => {
-                const column = noteObj.column;
-                if (!groups[column]) groups[column] = [];
-                groups[column].push(noteObj);
-                return groups;
-            }, {});
-    
-            let delay = 0;
-            const sequenceOutput = []; // Array to store the sequence as a string
-    
-            // Sort columns numerically
-            const sortedColumns = Object.keys(groupedByColumn).sort((a, b) => a - b);
-    
-            // Play each group of notes at the same time, column by column
-            sortedColumns.forEach(column => {
-                const notesInColumn = groupedByColumn[column];
-    
-                // Play all notes in this column simultaneously
-                notesInColumn.forEach(noteObj => {
-                    playNoteWithDelay(noteObj.note, noteObj.duration, delay);
-                });
-    
-                // Create a string representation of notes in this column
-                const columnNotes = notesInColumn.map(noteObj => `${noteObj.note} (${noteObj.duration}ms)`).join(", ");
-    
-                sequenceOutput.push(`[${column}: ${columnNotes}]`);
-    
-                // Increase delay based on the longest duration in the column
-                delay += Math.max(...notesInColumn.map(note => note.duration)) / 1000;
+    }
+
+    // Function to play the password sequence with simultaneous notes in the same column
+    function playPassword() {
+        startAudioContext();
+
+        const sequenceOutput = [];
+        const groupedByColumn = passwordSequence.reduce((groups, noteObj) => {
+            const column = noteObj.column;
+            if (!groups[column]) groups[column] = [];
+            groups[column].push(noteObj);
+            return groups;
+        }, {});
+
+        Object.keys(groupedByColumn).sort((a, b) => a - b).forEach(column => {
+            const notesInColumn = groupedByColumn[column];
+            const columnNotes = notesInColumn.map(noteObj => `${noteObj.note} (${noteObj.duration}ms)`).join(", ");
+            sequenceOutput.push(`[Column ${column}: ${columnNotes}]`);
+        });
+
+        document.getElementById("sequenceDisplay").textContent = "Musical Password Sequence:\n" + sequenceOutput.join("\n");
+
+        // Play each group of notes at the same time, column by column
+        let delay = 0;
+        Object.values(groupedByColumn).forEach(notesInColumn => {
+            notesInColumn.forEach(noteObj => {
+                playNoteWithDelay(noteObj.note, noteObj.duration, delay);
             });
-    
-            // Display the sequence as a string at the end of the page
-            document.getElementById("sequenceDisplay").textContent = "Musical Password Sequence:\n" + sequenceOutput.join("\n");
-        }
-    
-        // Play individual note with a delay
-        function playNoteWithDelay(note, duration, delay) {
-            const frequency = notes[note];
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-    
-            oscillator.type = 'sine';
-            oscillator.frequency.value = frequency;
-    
-            // Start and stop the note with the specified delay and duration
-            oscillator.start(audioCtx.currentTime + delay);
-            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime + delay);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + duration / 1000);
-            oscillator.stop(audioCtx.currentTime + delay + duration / 1000);
-        }
-    </script>
+            delay += Math.max(...notesInColumn.map(n => n.duration)) / 1000;
+        });
+    }
+
+    // Play individual note with a delay
+    function playNoteWithDelay(note, duration, delay) {
+        const baseNote = note.slice(0, -1);
+        const octave = parseInt(note.slice(-1));
+        const frequency = noteFrequencies[baseNote] * Math.pow(2, octave - 4); // Adjust frequency for octave
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.type = 'sine';
+        oscillator.frequency.value = frequency;
+
+        oscillator.start(audioCtx.currentTime + delay);
+        gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime + delay);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + duration / 1000);
+        oscillator.stop(audioCtx.currentTime + delay + duration / 1000);
+    }
+</script>
     
     </body>
     </html>
