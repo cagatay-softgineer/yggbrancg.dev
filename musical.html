@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Noto+Music&family=Skranji&display=swap" rel="stylesheet">
+    <title>Musical Password with Staff and Duration Icons</title>
+    <style>
+        /* Staff styling */
+        .staff {
+            display: flex;
+            width: 100%;
+            height: 160px;
+            border: 1px solid #000;
+            margin: 20px auto;
+            background-color: #f9f9f9;
+            padding: 5px;
+            overflow-x: auto;
+        }
+        /* Column styling */
+        .column {
+            width: 100dvb;  /* 32 columns */
+            background-color: rgba(0, 0, 0, 0.05);
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            text-align: center;
+            position: relative;
+        }
+        /* Lines and spaces styling */
+        .line, .space {
+            width: 100%;
+            height: 20px;
+            position: absolute;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .line {
+            border-bottom: 2px solid black;
+        }
+        .space {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        /* Hover effect for clickable areas */
+        .line:hover::before, .space:hover::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            top: 50%;
+            left: 35%;
+            height: 20px;
+            background-color: rgba(100, 100, 100, 0.2);
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+        /* Note styling */
+        .note {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            line-height: 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        h1.musical-title {
+            font-family: 'Noto Music', serif; /* Use 'Notable' or 'Musical Symbols' if available */
+            font-size: 48px;
+            color: #000000; /* Gold color for a classic musical vibe */
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Soft shadow for depth */
+            letter-spacing: 1.2px; /* Slight spacing for elegance */
+            line-height: 1.2; /* Adjust line height for readability */
+            text-align: center; /* Center alignment if applicable */
+            margin: 20px 0; /* Add space around the title */
+        }
+        
+        /* For a responsive adjustment */
+        @media (max-width: 768px) {
+            h1.musical-title {
+                font-size: 36px; /* Adjust font size for smaller screens */
+            }
+        }
+
+        .display-area {
+            margin-top: 20px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 10px;
+        }
+        /* Help button styling */
+        .help-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            font-family: Arial, sans-serif;
+        }
+        .help-button svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+        }
+        /* Help overlay styling */
+        .help-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: left;
+            z-index: 1000;
+        }
+        .help-content {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 100%;
+        }
+        .help-content h2 {
+            margin-top: 0;
+            color: #00bfff;
+        }
+        .close-help {
+            background: #00bfff;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="musical-title">Musical Password with Staff and Sequence Display</h1>
+
+    <div class="staff" id="staff">
+        <!-- The columns will be generated here automatically by JavaScript -->
+    </div>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <button onclick="playPassword()">Play Sequence</button>
+        <button class="help-button" onclick="toggleHelp()">
+            How to Use
+        </button>
+    </div>
+    
+    <div id="sequenceDisplay" class="display-area">
+        <!-- Display the musical password sequence here -->
+    </div>
+
+    <!-- Help overlay -->
+<div id="helpOverlay" class="help-overlay">
+    <div class="help-content">
+        <h2>How to Use This Musical Password Tool</h2>
+        <p><strong>Adding Notes:</strong> Click on a line or space in any column to add a note at that position.</p>
+        <p><strong>Changing Durations:</strong> Each click on a note cycles through different durations (250ms, 500ms, 750ms, 1000ms).</p>
+        <p><strong>Playing the Sequence:</strong> Click the "Play Sequence" button to play your musical password.</p>
+        <p><strong>Removing Notes:</strong> Right-click on any note to remove it from the staff.</p>
+        <p><strong>Viewing the Password:</strong> After clicking "Play Sequence," a text summary of your password will appear at the bottom of the page.</p>
+        <button class="close-help" onclick="toggleHelp()">Close</button>
+    </div>
+</div>
+    
+    <script>
+
+        function toggleHelp() {
+            const helpOverlay = document.getElementById("helpOverlay");
+            helpOverlay.style.display = helpOverlay.style.display === "flex" ? "none" : "flex";
+        }
+
+        let audioCtx;
+        let passwordSequence = []; // Stores the sequence of notes and durations
+        const durations = [250, 500, 750, 1000]; // Predefined durations
+        const durationIcons = ['𝅘𝅥𝅮', '𝅘𝅥', '𝅗𝅥', '𝅝']; // Musical note icons
+        let currentDurationIndex = 0; // Start with 250ms
+    
+        // Define notes with frequencies for playback
+        const notes = {
+            'F4': 349.23,  // F
+            'E4': 329.63,  // E
+            'D4': 293.66,  // D
+            'C4': 261.63,  // C
+            'B3': 246.94,  // B
+            'A3': 220.00,  // A
+            'G3': 196.00   // G
+        };
+    
+        // Function to initialize the staff with 32 columns automatically
+        function initializeStaff() {
+            const staff = document.getElementById('staff');
+            const notesInColumn = ['F4', 'E4', 'D4', 'C4', 'B3', 'A3', 'G3'];
+    
+            // Create 32 columns
+            for (let i = 0; i < 32; i++) {
+                const column = document.createElement('div');
+                column.classList.add('column');
+                column.setAttribute('data-column', i + 1);
+    
+                // Create lines and spaces for each note in the column
+                notesInColumn.forEach((note, index) => {
+                    const lineOrSpace = document.createElement('div');
+                    lineOrSpace.classList.add(index % 2 === 0 ? 'line' : 'space');
+                    lineOrSpace.style.top = `${index * 20}px`;
+                    lineOrSpace.setAttribute('data-note', note);
+                    lineOrSpace.onclick = () => selectNoteInColumn(lineOrSpace);
+                    lineOrSpace.oncontextmenu = (event) => {
+                        event.preventDefault();
+                        removeNoteInColumn(lineOrSpace);
+                    };
+    
+                    column.appendChild(lineOrSpace);
+                });
+    
+                staff.appendChild(column);
+            }
+        }
+    
+        // Initialize the staff when the page loads
+        window.onload = initializeStaff;
+    
+        // Initialize AudioContext on first user interaction
+        function startAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+    
+        // Function to select a note in a column and cycle through durations
+        function selectNoteInColumn(element) {
+            const note = element.getAttribute('data-note');
+            const column = element.parentNode.getAttribute('data-column');
+    
+            // Check if note already exists in this column
+            let noteObj = passwordSequence.find(n => n.note === note && n.column === column);
+    
+            // If note doesn't exist, add it with the default duration
+            if (!noteObj) {
+                noteObj = { note, duration: durations[currentDurationIndex], column };
+                passwordSequence.push(noteObj);
+                displayNoteInColumn(element, note, currentDurationIndex);
+            } else {
+                // Cycle to the next duration
+                currentDurationIndex = (currentDurationIndex + 1) % durations.length;
+                noteObj.duration = durations[currentDurationIndex];
+                displayNoteInColumn(element, note, currentDurationIndex);
+            }
+        }
+    
+        // Display the selected note with a musical icon representing the duration
+        function displayNoteInColumn(element, note, durationIndex) {
+            // Clear existing note if any in the same spot
+            const existingNote = element.querySelector('.note');
+            if (existingNote) {
+                existingNote.remove();
+            }
+    
+            // Create and style the note element with duration icon
+            const noteElement = document.createElement('div');
+            noteElement.classList.add('note');
+            noteElement.textContent = durationIcons[durationIndex];
+            noteElement.title = `${note} (${durations[durationIndex]}ms)`;
+            noteElement.style.left = "calc(50% - 10px)";
+            element.appendChild(noteElement);
+        }
+    
+        // Remove a note on right-click
+        function removeNoteInColumn(element) {
+            const note = element.getAttribute('data-note');
+            const column = element.parentNode.getAttribute('data-column');
+    
+            // Find the index of the note in the sequence and remove it
+            const noteIndex = passwordSequence.findIndex(n => n.note === note && n.column === column);
+            if (noteIndex > -1) {
+                passwordSequence.splice(noteIndex, 1); // Remove from sequence
+                const existingNote = element.querySelector('.note');
+                if (existingNote) existingNote.remove(); // Remove from display
+            }
+        }
+    
+        // Function to play the password sequence with simultaneous notes in the same column
+        function playPassword() {
+            startAudioContext();
+    
+            // Group notes by column
+            const groupedByColumn = passwordSequence.reduce((groups, noteObj) => {
+                const column = noteObj.column;
+                if (!groups[column]) groups[column] = [];
+                groups[column].push(noteObj);
+                return groups;
+            }, {});
+    
+            let delay = 0;
+            const sequenceOutput = []; // Array to store the sequence as a string
+    
+            // Sort columns numerically
+            const sortedColumns = Object.keys(groupedByColumn).sort((a, b) => a - b);
+    
+            // Play each group of notes at the same time, column by column
+            sortedColumns.forEach(column => {
+                const notesInColumn = groupedByColumn[column];
+    
+                // Play all notes in this column simultaneously
+                notesInColumn.forEach(noteObj => {
+                    playNoteWithDelay(noteObj.note, noteObj.duration, delay);
+                });
+    
+                // Create a string representation of notes in this column
+                const columnNotes = notesInColumn.map(noteObj => `${noteObj.note} (${noteObj.duration}ms)`).join(", ");
+    
+                sequenceOutput.push(`[${column}: ${columnNotes}]`);
+    
+                // Increase delay based on the longest duration in the column
+                delay += Math.max(...notesInColumn.map(note => note.duration)) / 1000;
+            });
+    
+            // Display the sequence as a string at the end of the page
+            document.getElementById("sequenceDisplay").textContent = "Musical Password Sequence:\n" + sequenceOutput.join("\n");
+        }
+    
+        // Play individual note with a delay
+        function playNoteWithDelay(note, duration, delay) {
+            const frequency = notes[note];
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+    
+            oscillator.type = 'sine';
+            oscillator.frequency.value = frequency;
+    
+            // Start and stop the note with the specified delay and duration
+            oscillator.start(audioCtx.currentTime + delay);
+            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime + delay);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + duration / 1000);
+            oscillator.stop(audioCtx.currentTime + delay + duration / 1000);
+        }
+    </script>
+    
+    </body>
+    </html>
