@@ -45,6 +45,7 @@
         }
         .space {
             background-color: rgba(41, 41, 41, 0.05);
+            border-bottom: 0.5px solid #050319;
         }
         /* Hover effect for clickable areas */
         .line:hover::before, .space:hover::before {
@@ -224,6 +225,18 @@
         
         .octave-dropdown:hover {
             background-color: rgba(246, 246, 246, 0.1);
+        }
+
+        /* Add this to existing CSS */
+        .note-playing {
+            position: absolute;
+            color: rgba(246, 246, 246, 0.3);
+            text-align: center;
+            line-height: 20px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Smooth hover transition */
+            animation: fadeIn 0.3s ease-in-out forwards;
         }
 
     </style>
@@ -446,54 +459,116 @@
         }
     }
 
-    // Function to play the password sequence with simultaneous notes in the same column
-    function playPassword() {
-        startAudioContext();
-
-        const sequenceOutput = [];
-        const groupedByColumn = passwordSequence.reduce((groups, noteObj) => {
-            const column = noteObj.column;
-            if (!groups[column]) groups[column] = [];
-            groups[column].push(noteObj);
-            return groups;
-        }, {});
-
-        Object.keys(groupedByColumn).sort((a, b) => a - b).forEach(column => {
-            const notesInColumn = groupedByColumn[column];
-            const columnNotes = notesInColumn.map(noteObj => `${noteObj.note} (${noteObj.duration}ms)`).join(", ");
-            sequenceOutput.push(`[Column ${column}: ${columnNotes}]`);
-        });
-
-        document.getElementById("sequenceDisplay").textContent = "Musical Password Sequence:\n" + sequenceOutput.join("\n");
-
-        // Play each group of notes at the same time, column by column
-        let delay = 0;
-        Object.values(groupedByColumn).forEach(notesInColumn => {
-            notesInColumn.forEach(noteObj => {
-                playNoteWithDelay(noteObj.note, noteObj.duration, delay);
+    function encodeSequenceFromString(sequenceStr) {
+        // Mappings for notes and durations
+        const noteMap = { 'C': 0, 'D': 1, 'E': 2, 'F': 3, 'G': 4, 'A': 5, 'B': 6 };
+        const durationMap = { '250ms': 0, '500ms': 1, '750ms': 2, '1000ms': 3 };
+    
+        // Array to hold the encoded output
+        const encodedSequence = [];
+    
+        // Match each column pattern in the format "[Column X: ...]"
+        const columnPattern = /\[Column (\d+): ([^\]]+)\]/g;
+        let match;
+    
+        // Process each column match
+        while ((match = columnPattern.exec(sequenceStr)) !== null) {
+            const columnIndex = parseInt(match[1]);
+            const notesInColumn = match[2].split(', ');  // Split multiple notes in a column
+    
+            // Process each note-duration pair in the column
+            notesInColumn.forEach(item => {
+                const noteMatch = item.match(/([A-G])(\d) \((\d+ms)\)/);
+    
+                if (noteMatch) {
+                    const note = noteMatch[1];           // Extract note (e.g., "C")
+                    const octave = parseInt(noteMatch[2]); // Extract octave (e.g., "6")
+                    const duration = noteMatch[3];       // Extract duration (e.g., "250ms")
+                    const noteCode = noteMap[note];      // Convert note to code
+                    const durationCode = durationMap[duration]; // Convert duration to code
+    
+                    // Add the encoded tuple to the output
+                    encodedSequence.push([columnIndex, noteCode, octave, durationCode]);
+                }
             });
-            delay += Math.max(...notesInColumn.map(n => n.duration)) / 1000;
+        }
+    
+        return encodedSequence;
+    }
+
+// Function to play the password sequence with simultaneous notes in the same column
+function playPassword() {
+    startAudioContext();
+
+    const sequenceOutput = [];
+    const groupedByColumn = passwordSequence.reduce((groups, noteObj) => {
+        const column = noteObj.column;
+        if (!groups[column]) groups[column] = [];
+        groups[column].push(noteObj);
+        return groups;
+    }, {});
+
+    Object.keys(groupedByColumn).sort((a, b) => a - b).forEach(column => {
+        const notesInColumn = groupedByColumn[column];
+        const columnNotes = notesInColumn.map(noteObj => `${noteObj.note} (${noteObj.duration}ms)`).join(", ");
+        sequenceOutput.push(`[Column ${column}: ${columnNotes}]`);
+    });
+
+    document.getElementById("sequenceDisplay").textContent = "Musical Password Sequence:\n" + encodeSequenceFromString(sequenceOutput).join("\n");
+
+    // Play each group of notes at the same time, column by column
+    let delay = 0;
+    Object.values(groupedByColumn).forEach(notesInColumn => {
+        notesInColumn.forEach(noteObj => {
+            playNoteWithDelay(noteObj.note, noteObj.duration, delay, noteObj.column);
         });
+        delay += Math.max(...notesInColumn.map(n => n.duration)) / 1000;
+    });
+}
+
+// Play individual note with a delay and highlight it on the staff
+function playNoteWithDelay(note, duration, delay, column) {
+    const baseNote = note.slice(0, -1);
+    const octave = parseInt(note.slice(-1));
+    const frequency = noteFrequencies[baseNote] * Math.pow(2, octave - 4); // Adjust frequency for octave
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.type = 'sine';
+    oscillator.frequency.value = frequency;
+
+    // Highlight the note on the staff
+    highlightNoteOnStaff(baseNote, column, duration, delay);
+
+    oscillator.start(audioCtx.currentTime + delay);
+    gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime + delay);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + duration / 1000);
+    oscillator.stop(audioCtx.currentTime + delay + duration / 1000);
+}
+
+// Function to highlight the note on the staff
+function highlightNoteOnStaff(baseNote, column, duration, delay) {
+    // Find the note element on the staff
+    const columnElement = document.querySelector(`.column[data-column='${column}']`);
+    const noteElement = columnElement.querySelector(`[data-note='${baseNote}']`);
+
+    if (noteElement) {
+        // Add the highlight class to indicate it's playing
+        setTimeout(() => {
+            noteElement.classList.remove('note');
+            noteElement.classList.add('note-playing');
+        }, delay * 1000); // Apply delay in milliseconds
+
+        // Remove the highlight after the duration
+        setTimeout(() => {
+            noteElement.classList.remove('note-playing');
+            noteElement.classList.add('.note');
+        }, (delay * 1000) + duration); // Remove after delay + duration
     }
+}
 
-    // Play individual note with a delay
-    function playNoteWithDelay(note, duration, delay) {
-        const baseNote = note.slice(0, -1);
-        const octave = parseInt(note.slice(-1));
-        const frequency = noteFrequencies[baseNote] * Math.pow(2, octave - 4); // Adjust frequency for octave
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        oscillator.type = 'sine';
-        oscillator.frequency.value = frequency;
-
-        oscillator.start(audioCtx.currentTime + delay);
-        gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime + delay);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + duration / 1000);
-        oscillator.stop(audioCtx.currentTime + delay + duration / 1000);
-    }
 </script>
     
     </body>
