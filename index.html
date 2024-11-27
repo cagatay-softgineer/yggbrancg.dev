@@ -9,47 +9,105 @@
     <title>Welcome to Yggbranch.dev - SyncBranch</title>
 </head>
 <body>
+
+    <nav class="navbar">
+        <div class="logo">SyncBranch</div>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#logic">How It Works</a></li>
+            <li><a href="#technologies">Technologies</a></li>
+            <li><a href="#get-started">Get Started</a></li>
+        </ul>
+    </nav>
+
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Discover Your Music Identity</h1>
+            <p>SyncBranch connects the world of music lovers using Spotify data and personalized insights.</p>
+            <button onclick="location.href='#get-started'">Get Started</button>
+        </div>
+    </header>
+
     <div class="content-container">
         <div class="content">
             <h1>Welcome to Yggbranch.dev</h1>
-            <section>
+            <section id="get-started" class="section cta">
                 <h2>Introduction</h2>
-                <p>SyncBranch is a cutting-edge mobile application designed to help you explore and discover your unique music identity. By integrating with your Spotify account, SyncBranch analyzes your listening habits, uncovering patterns in the music you love. Through this analysis, SyncBranch connects you with others who share your musical tastes and personalities.</p>
+                <p>SyncBranch is a mobile app that connects you to your unique musical identity. By analyzing your Spotify listening habits, it reveals your music preferences and links you with others who share your taste.</p>
             </section>
-
+            
             <section>
                 <h2>Our Mission</h2>
-                <p>At SyncBranch, we believe that music is more than just sound—it's a reflection of who we are. Our mission is to create a community where music enthusiasts can connect based on their shared love for certain rhythms, moods, and genres. Inspired by the ancient myth of Yggdrasil, SyncBranch uses the power of music to build connections between people, much like the World Tree connects the nine realms of Norse mythology.</p>
+                <p>We aim to unite music lovers by building connections through shared rhythms and genres. Inspired by the myth of Yggdrasil, SyncBranch uses music to bridge communities and celebrate individuality.</p>
             </section>
+            
 
-            <section id="technologies">
-                <h2>Technologies Used</h2>
-                <div class="tech-item">
-                    <h3>
+            <section id="features" class="section features">
+                <h2>Key Features</h2>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <h3>Personalized Profiles</h3>
+                        <p>Create unique music profiles based on your Spotify listening habits.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Insights</h3>
+                        <p>Get detailed insights into tempo, energy, mood, and more.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Community Connection</h3>
+                        <p>Discover and connect with like-minded music enthusiasts.</p>
+                    </div>
+                </div>
+            </section>
+        
+            <section id="logic" class="section logic">
+                <h2>How It Works</h2>
+                <div class="logic-steps">
+                    <div class="step">
+                        <h3>1. Connect Your Spotify</h3>
+                        <p>Authorize SyncBranch to access your listening habits securely.</p>
+                    </div>
+                    <div class="step">
+                        <h3>2. Analyze Your Data</h3>
+                        <p>We use advanced algorithms to analyze your playlists, tempo, and mood.</p>
+                    </div>
+                    <div class="step">
+                        <h3>3. Join the Community</h3>
+                        <p>Find others who share your music profile and taste.</p>
+                    </div>
+                </div>
+            </section>
+        
+            <section id="technologies" class="section technologies">
+                <h2>Technologies We Use</h2>
+                <div class="tech-grid">
+                    <div class="tech-item">
                         <img src="https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_White-300x300.png" alt="Spotify Logo" width="40" height="40">
-                        Spotify API
-                    </h3>
-                    <p>We integrate with the Spotify API to access real-time user data, analyze track features such as danceability, energy, and mood, and personalize music experiences based on user history.</p>
-                </div>
-                <div class="tech-item">
-                    <h3>
+                        <h3>Spotify API</h3>
+                        <p>SyncBranch leverages the power of the Spotify API to access real-time user data and analyze track features such as tempo, energy, and mood. This integration enables us to craft personalized music profiles, ensuring a unique and immersive experience for every user.</p>
+                    </div>
+                    
+                    <div class="tech-item">
                         <img src="https://storage.googleapis.com/cms-storage-bucket/4fd5520fe28ebf839174.svg" alt="Flutter Logo" width="40" height="40">
-                        Flutter
-                    </h3>
-                    <p>Our mobile application is built using Flutter, a UI toolkit for crafting high-performance, visually stunning apps for both iOS and Android platforms from a single codebase.</p>
-                </div>
-                <div class="tech-item">
-                    <h3>
+                        <h3>Flutter</h3>
+                        <p>Our mobile app is developed using Flutter, a robust UI toolkit that allows us to build visually stunning and high-performance applications. With Flutter, we deliver seamless experiences across both iOS and Android from a single, efficient codebase.</p>
+                    </div>
+                    
+                    <div class="tech-item">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" alt="Python Logo" width="40" height="40">
-                        Python
-                    </h3>
-                    <p>Our backend services are powered by Python, handling data analysis, API communication, and server-side logic to provide real-time responses to the mobile application.</p>
+                        <h3>Python</h3>
+                        <p>The backbone of SyncBranch’s backend services is Python. Its versatility and efficiency empower us to perform complex data analysis, enable real-time communication with the Spotify API, and manage server-side operations with precision and speed.</p>
+                    </div>
                 </div>
             </section>
 
-            <nav>
-                <a href="about.html">About Us</a>
-            </nav>
+            <section>
+                    <div class="hero-content">
+                    <h2>Ready to Explore?</h2>
+                    <button onclick="location.href='about.html'">About Us</a>
+                    </div>
+            </section>
         </div>
     </div>
 

@@ -128,6 +128,27 @@ form button:hover {
     box-shadow: 0 4px 12px rgba(5, 3, 25, 0.2); /* Add shadow on hover */
 }
 
+
+/* Button styling with animation */
+.abutton {
+    font-family: 'Skranji', serif; /* Use Noto Sans Runic for headers */
+    background-color: #1a2980; /* Blue */
+    color: #f6f6f6; /* White text */
+    border: 2px solid #84fbfb; /* Light blue border */
+    padding: 12px 24px;
+    font-size: 1.1em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+    animation: fadeIn 1s ease-in-out forwards;
+}
+
+.abutton:hover {
+    background-color: #84fbfb; /* Light blue on hover */
+    transform: scale(1.1); /* Slightly enlarge the button on hover */
+    box-shadow: 0 4px 12px rgba(5, 3, 25, 0.2); /* Add shadow on hover */
+}
+
 /* Footer styling */
 footer {
     background-color: #292929;
@@ -138,6 +159,7 @@ footer {
     position: relative;
     bottom: 0;
     margin-top: auto; /* Push the footer to the bottom when content is shorter than the screen */
+    border-top: 2px solid #FF22FF;
 }
 
 /* GitHub link in the footer with animation */
@@ -152,39 +174,110 @@ footer a img:hover {
     transform: scale(1.2); /* Zoom in on hover */
 }
 
+/* Hero Section */
+.hero {
+    background: url('assets/yggdrasil-background.webp') no-repeat center center/cover;
+    text-align: center;
+    padding: 120px 20px;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-/* Technologies Section */
-#technologies {
-    background-color: rgba(46, 13, 47, 0.8); /* Dark purple background */
-    padding: 20px;
+.hero-content{
+    background-color: rgba(5, 3, 25, 0.6); /* Dark semi-transparent background */
+    backdrop-filter: blur(5px); /* Background blur */
+    padding: 20px 40px;
     border-radius: 10px;
-    margin: 20px 0;
-    text-align: left;
+    box-shadow: 0 0 15px rgba(5, 3, 25, 0.5);
+    text-shadow: 0 0 20px #84fbfb;
 }
 
-/* Each technology item */
-.tech-item {
-    margin-bottom: 15px;
+.hero-content h1 {
+    font-family: 'Skranji', serif;
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+.hero-content button {
+    padding: 10px 20px;
+    background: #FF22FF;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #fff;
+    transition: background 0.3s;
+}
+
+.hero-content button:hover {
+    background: #6A11CB;
+}
+
+/* Navbar */
+.navbar {
     display: flex;
+    justify-content: space-between;
     align-items: center;
+    padding: 10px 30px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 2px solid #FF22FF;
 }
 
-/* Styling for technology titles */
-.tech-item h3 {
-    color: #84fbfb; /* Light blue */
-    font-size: 0.8em;
-    margin-bottom: 12px;
-    margin-right: 8px;
-    text-transform: uppercase; /* Uppercase styling for titles */
+.navbar .logo {
+    font-family: 'Skranji', serif;
+    font-size: 1.5rem;
+    color: #FF22FF;
+}
+
+.nav-links {
+    list-style: none;
     display: flex;
-    align-items: center;
+    gap: 20px;
 }
 
-.tech-item h3 img {
-    margin-right: 10px; /* Spacing between icon and text */
+.nav-links a {
+    text-decoration: none;
+    color: #fff;
+    transition: color 0.3s;
 }
 
-/* Styling for technology descriptions */
-.tech-item p {
-    color: #f6f6f6; /* Light text for description */
+.nav-links a:hover {
+    color: #FF22FF;
+}
+
+/* Section Styles */
+.section {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.features-grid, .logic-steps, .tech-grid {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.feature-item, .step, .tech-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 10px;
+    min-width: 90%;
+    text-align: center;
+    transition: transform 0.3s;
+    border: 2px solid #FF22FF;
+}
+
+.feature-item:hover, .step:hover, .tech-item:hover {
+    transform: translateY(-20x);
 }

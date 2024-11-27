@@ -28,10 +28,20 @@
             background-color: rgba(41, 41, 41, 0.05);
             content: '';
             position: absolute;
-            border-radius: 50%;
             text-align: center;
             position: relative;
+            box-shadow: #050319;
         }
+
+        .column:nth-child(odd) {
+            background-color: rgba(41, 41, 41, 0.2); /* Slightly darker background */
+        }
+        
+        /* Even columns */
+        .column:nth-child(even) {
+            background-color: rgba(41, 41, 41, 0.5); /* Lighter background */
+        }
+
         /* Lines and spaces styling */
         .line, .space {
             width: 100%;
@@ -66,7 +76,7 @@
             width: 20px;
             height: 20px;
             background-color: #292929;
-            color: #f6f6f6;
+            color: #84fbfb;
             text-align: center;
             top: 50%;
             left: 50%;
@@ -243,6 +253,13 @@
     </style>
 </head>
 <body>
+
+    <nav class="navbar">
+        <div class="logo"><a href="index.html">SyncBranch</a></div>
+        <ul class="nav-links">
+        </ul>
+    </nav>
+
     <div class="content-container">
         <div class="content">
     <h1 class="musical-title">Musical Password with Staff and Sequence Display</h1>
