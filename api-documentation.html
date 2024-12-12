@@ -26,7 +26,7 @@
         .param{color: #292929 !important;}
         textarea { resize: vertical !important; }
         footer { background-color: #292929 !important; padding: 20px !important; text-align: center !important; }
-        h3, h2, p{color: #f6f6f6 !important;}
+        h3, h2, p, label{color: #f6f6f6 !important;}
     </style>
 </head>
 <body>
@@ -43,6 +43,17 @@
         <h4>API Documentation</h4>
         <a onclick="showSection('overview')">🌐 Overview</a>
         <div id="sidebar-content"></div>
+    </div>
+
+    <div class="content">
+        <!-- Authentication Inputs -->
+        <h3>Authentication</h3>
+        <div>
+            <label for="basic-auth">Basic Auth (username:password):</label>
+            <input type="text" id="basic-auth" placeholder="username:password" class="form-control mb-3">
+            <label for="jwt-token">JWT Token:</label>
+            <textarea id="jwt-token" placeholder="Paste your JWT token here" rows="2" class="form-control mb-3"></textarea>
+        </div>
     </div>
 
     <div class="content">
@@ -104,15 +115,13 @@
                     <button class="btn btn-primary mt-2" onclick="testApi('${endpoint.route}', '${endpoint.method}', '${requestId}')">Send Request</button>
                     <div id="${responseId}" class="response-container"></div>
                 `;
-                console.log(`Creating response container with ID ${responseId}`); // Debugging
-    
                 serviceDiv.appendChild(endpointDiv);
             });
     
             content.appendChild(serviceDiv);
         });
     }
-
+    
     function showSection(sectionId) {
         document.querySelectorAll('.content section').forEach(section => {
             section.classList.add('hidden');
@@ -124,18 +133,22 @@
             console.error(`Section with ID ${sectionId} not found!`);
         }
     }
-
+    
     async function testApi(route, method, requestId) {
         const url = `https://api-sync-branch.yggbranch.dev${route}`;
         const requestBodyElement = document.getElementById(requestId);
         const responseElement = document.getElementById(`${requestId}-response`);
-
+    
         // Ensure the response element exists
         if (!responseElement) {
             console.error(`Response element with ID ${requestId}-response not found!`);
             return;
         }
-
+    
+        // Retrieve optional authentication inputs
+        const basicAuth = document.getElementById('basic-auth').value;
+        const jwtToken = document.getElementById('jwt-token').value;
+    
         let requestBody = null;
         if (requestBodyElement && requestBodyElement.value) {
             try {
@@ -145,30 +158,35 @@
                 return;
             }
         }
-
+        const headers = { 'Content-Type': 'application/json' };
+        if (basicAuth != null && basicAuth != "") {
+            const encodedAuth = btoa(basicAuth); // Encode Basic Auth credentials
+            headers['Authorization'] = `Basic ${encodedAuth}`;
+        } else if (jwtToken) {
+            headers['Authorization'] = `Bearer ${jwtToken}`;
+        }
+    
         const options = {
             method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers,
             body: requestBody ? JSON.stringify(requestBody) : null,
         };
-
+    
         try {
             const response = await fetch(url, options);
-
+    
             if (!response.ok) {
                 responseElement.textContent = `Error: ${response.status} ${response.statusText}`;
                 return;
             }
-
+    
             const responseData = await response.json();
             responseElement.textContent = JSON.stringify(responseData, null, 2);
         } catch (error) {
             responseElement.textContent = `Error: ${error.message}`;
         }
     }
-
+    
     loadDocumentation();
 </script>
 
