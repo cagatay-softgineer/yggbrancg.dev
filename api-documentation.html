@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Skranji:wght@400;700&display=swap" rel="stylesheet">
+    <title>Dynamic API Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: Arial, sans-serif !important; }
+        .navbar-brand, .nav-link { color: #f6f6f6 !important; }
+        .section { padding: 50px 0 !important; }
+        .section-title { font-size: 2rem !important; margin-bottom: 20px !important; }
+        .sidebar { position: fixed !important; top: 0 !important; left: 0 !important; height: 100% !important; width: 250px !important; backdrop-filter: blur(10px); /* Background blur */ background-color: rgba(5, 3, 25, 0.6) !important; padding: 20px !important; overflow-y: auto !important; }
+        .sidebar h4 { color: #f6f6f6 !important; font-size: 1.5rem !important; margin-bottom: 20px !important; }
+        .sidebar a { color: #f6f6f6 !important; text-decoration: none !important; display: block !important; margin: 10px 0 !important; cursor: pointer !important; transition: color 0.3s; }
+        .sidebar a:hover { color: #FF22FF !important; }
+        .content {color: #292929; margin-left: 270px !important; padding: 20px !important; }
+        .hidden { display: none !important; }
+        .api-tester { margin-top: 20px !important; border: 1px solid #dee2e6 !important; padding: 20px !important; border-radius: 5px !important; background-color: #f8f9fa !important; }
+        .api-tester pre { white-space: pre-wrap !important; word-wrap: break-word !important; border: 1px solid #dee2e6 !important; padding: 10px !important; background-color: #ffffff !important; }
+        .response-container { margin-top: 10px !important; padding: 15px !important; background: #f8f9fa !important; border-radius: 5px !important; border: 1px solid #dee2e6 !important; }
+        .desc{color: #292929 !important;}
+        .param{color: #292929 !important;}
+        textarea { resize: vertical !important; }
+        footer { background-color: #292929 !important; padding: 20px !important; text-align: center !important; }
+        h3, h2, p{color: #f6f6f6 !important;}
+    </style>
+</head>
+<body>
+    <header>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">API Documentation</a>
+        </div>
+    </nav>
+    </header>
+    <div class="content-container">
+        <div class="content" style="text-align: auto; max-width: 1100px;">
+    <div class="sidebar">
+        <h4>API Documentation</h4>
+        <a onclick="showSection('overview')">🌐 Overview</a>
+        <div id="sidebar-content"></div>
+    </div>
+
+    <div class="content">
+
+
+        <section id="overview" class="section">
+            <div class="container">
+                <h2 class="section-title">🌐 Overview</h2>
+                <p>This API documentation provides all the necessary details for interacting with our server endpoints. Explore the services listed on the left to access endpoint-specific information, descriptions, and testing tools.</p>
+            </div>
+        </section>
+
+        <div id="content"></div>
+
+
+    </div>
+</div>
+</div>
+<footer>
+    <p>&copy; 2024 API Documentation. All rights reserved.</p>
+</footer>
+    <script>
+        async function loadDocumentation() {
+            const response = await fetch('endpoints.json'); // Fetch the JSON file
+            const data = await response.json();
+
+            const sidebar = document.getElementById('sidebar-content');
+            const content = document.getElementById('content');
+
+            data.forEach((service, serviceIndex) => {
+                // Add service to the sidebar
+                const serviceLink = document.createElement('a');
+                serviceLink.textContent = service.service;
+                serviceLink.onclick = () => showSection(`service-${serviceIndex}`);
+                sidebar.appendChild(serviceLink);
+
+                // Add service section to the content
+                const serviceDiv = document.createElement('section');
+                serviceDiv.id = `service-${serviceIndex}`;
+                serviceDiv.className = 'hidden';
+                serviceDiv.innerHTML = `<h3>${service.service}</h3>`;
+
+                service.endpoints.forEach((endpoint, endpointIndex) => {
+                    const endpointDiv = document.createElement('div');
+                    endpointDiv.className = 'api-tester';
+                    endpointDiv.innerHTML = `
+                        <h5><strong>${endpoint.method}</strong> ${endpoint.route}</h5>
+                        <p class="desc"><strong>Description:</strong> ${endpoint.description}</p>
+                        <p class="param"><strong>Parameters:</strong></p>
+                        <pre>${JSON.stringify(endpoint.parameters, null, 2)}</pre>
+                        <p><strong>Usage Example:</strong></p>
+                        <pre>${JSON.stringify(endpoint.usage, null, 2)}</pre>
+                        <textarea id="service-${serviceIndex}-endpoint-${endpointIndex}-request" class="form-control" rows="5" placeholder='Enter request body or parameters'></textarea>
+                        <button class="btn btn-primary mt-2" onclick="testApi('${endpoint.route}', '${endpoint.method}', 'service-${serviceIndex}-endpoint-${endpointIndex}-request')">Send Request</button>
+                        <div id="service-${serviceIndex}-endpoint-${endpointIndex}-response" class="response-container"></div>
+                        `;
+                    serviceDiv.appendChild(endpointDiv);
+                });
+
+                content.appendChild(serviceDiv);
+            });
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.content section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        async function testApi(route, method, requestId) {
+            const url = `https://api-sync-branch.yggbranch.dev${route}`;
+            const requestBody = document.getElementById(requestId).value;
+            const options = { method, headers: { 'Content-Type': 'application/json' } };
+
+            if (requestBody) {
+                try {
+                    options.body = JSON.stringify(JSON.parse(requestBody));
+                } catch {
+                    document.getElementById(requestId + '-response').textContent = 'Invalid JSON in request body!';
+                    return;
+                }
+            }
+
+            try {
+                const response = await fetch(url, options);
+                const responseData = await response.json();
+                document.getElementById(requestId + '-response').textContent = JSON.stringify(responseData, null, 2);
+            } catch (error) {
+                document.getElementById(requestId + '-response').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        loadDocumentation();
+    </script>
+</body>
+</html>

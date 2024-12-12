@@ -1,0 +1,253 @@
+[
+    {
+        "service": "📈 Admin Panel",
+        "endpoints": [
+            {
+                "method": "GET",
+                "route": "/admin/system/metrics",
+                "description": "Retrieves system metrics.",
+                "file": "admin.py",
+                "parameters": {},
+                "usage": "curl -X GET https://api-sync-branch.yggbranch.dev/admin/system/metrics"
+            },
+            {
+                "method": "GET",
+                "route": "/admin/status/history",
+                "description": "Returns historical status logs.",
+                "file": "admin.py",
+                "parameters": {},
+                "usage": "curl -X GET https://api-sync-branch.yggbranch.dev/admin/status/history"
+            },
+            {
+                "method": "GET",
+                "route": "/admin/status",
+                "description": "Displays current system status.",
+                "file": "admin.py",
+                "parameters": {},
+                "usage": "curl -X GET https://api-sync-branch.yggbranch.dev/admin/status"
+            },
+            {
+                "method": "GET",
+                "route": "/admin/database",
+                "description": "Provides database information.",
+                "file": "admin.py",
+                "parameters": {},
+                "usage": "curl -X GET https://api-sync-branch.yggbranch.dev/admin/database"
+            },
+            {
+                "method": "GET",
+                "route": "/admin/logs",
+                "description": "Lists log files.",
+                "file": "admin.py",
+                "parameters": {},
+                "usage": "curl -X GET https://api-sync-branch.yggbranch.dev/admin/logs"
+            },
+            {
+                "method": "GET",
+                "route": "/admin/logs/<filename>",
+                "description": "Retrieves specific log file content.",
+                "file": "admin.py",
+                "parameters": {
+                    "filename": "string (Required): The name of the log file to retrieve."
+                },
+                "usage": "curl -X GET https://api-sync-branch.yggbranch.dev/admin/logs/<filename>"
+            },
+            {
+                "method": "GET",
+                "route": "/admin/",
+                "description": "Default admin panel interface.",
+                "file": "admin.py",
+                "parameters": {},
+                "usage": "curl -X GET https://api-sync-branch.yggbranch.dev/admin/"
+            }
+        ]
+    },
+    {
+        "service": "📦 Database Service",
+        "endpoints": [
+            {
+                "method": "GET",
+                "route": "/api/table/<table_name>",
+                "description": "Fetches data from a specific database table.",
+                "file": "api.py",
+                "parameters": {
+                    "table_name": "string (Required): The name of the table to retrieve data from."
+                },
+                "usage": "curl -X GET https://api-sync-branch.yggbranch.dev/api/table/<table_name>"
+            },
+            {
+                "method": "POST",
+                "route": "/api/query",
+                "description": "Executes SQL queries.",
+                "file": "api.py",
+                "parameters": {
+                    "query": "string (Required): The SQL query to execute."
+                },
+                "usage": "curl -X POST https://api-sync-branch.yggbranch.dev/api/query"
+            }
+        ]
+    },
+    {
+        "service": "#️⃣ App Service",
+        "endpoints": [
+            {
+                "method": "GET",
+                "route": "/healthcheck",
+                "description": "Confirms application health.",
+                "file": "app.py",
+                "parameters": {},
+                "usage": "curl -X GET https://api-sync-branch.yggbranch.dev/healthcheck"
+            }
+        ]
+    },
+    {
+        "service": "🔐 Auth Service",
+        "endpoints": [
+            {
+                "method": "POST",
+                "route": "/auth/register",
+                "description": "Registers a new user.",
+                "file": "auth.py",
+                "parameters": {
+                    "username": "string (Required): The desired username.",
+                    "password": "string (Required): The desired password."
+                },
+                "usage": "curl -X POST https://api-sync-branch.yggbranch.dev/auth/register"
+            },
+            {
+                "method": "POST",
+                "route": "/auth/login",
+                "description": "Authenticates a user.",
+                "file": "auth.py",
+                "parameters": {
+                    "username": "string (Required): The username of the user.",
+                    "password": "string (Required): The password of the user."
+                },
+                "usage": "curl -X POST https://api-sync-branch.yggbranch.dev/auth/login -H 'Content-Type: application/json' -d '{\"username\": \"user\", \"password\": \"pass\"}'"
+            }
+        ]
+    },
+    {
+        "service": "🔳 Command Panel",
+        "endpoints": [
+            {
+                "method": "GET",
+                "route": "/commands/cmd",
+                "description": "Retrieves available commands.",
+                "file": "commands.py",
+                "parameters": {},
+                "usage": "curl -X GET https://api-sync-branch.yggbranch.dev/commands/cmd"
+            },
+            {
+                "method": "POST",
+                "route": "/commands/run_command",
+                "description": "Executes a specific command.",
+                "file": "commands.py",
+                "parameters": {
+                    "command": "string (Required): The command to execute."
+                },
+                "usage": "curl -X POST https://api-sync-branch.yggbranch.dev/commands/run_command"
+            }
+        ]
+    },
+    {
+        "service": "👥 Friendship Service",
+        "endpoints": [
+            {
+                "method": "POST",
+                "route": "/friendship/send",
+                "description": "Sends a friend request.",
+                "file": "friendship.py",
+                "parameters": {
+                    "recipient_id": "string (Required): The ID of the recipient."
+                },
+                "usage": "curl -X POST https://api-sync-branch.yggbranch.dev/friendship/send"
+            },
+            {
+                "method": "POST",
+                "route": "/friendship/respond",
+                "description": "Responds to a friend request.",
+                "file": "friendship.py",
+                "parameters": {
+                    "request_id": "string (Required): The ID of the friend request.",
+                    "response": "string (Required): The response to the request (e.g., 'accept' or 'reject')."
+                },
+                "usage": "curl -X POST https://api-sync-branch.yggbranch.dev/friendship/respond"
+            },
+            {
+                "method": "GET",
+                "route": "/friendship/list",
+                "description": "Lists all friends or pending requests.",
+                "file": "friendship.py",
+                "parameters": {},
+                "usage": "curl -X GET https://api-sync-branch.yggbranch.dev/friendship/list"
+            }
+        ]
+    },
+    {
+        "service": "📬 Messaging Service",
+        "endpoints": [
+            {
+                "method": "POST",
+                "route": "/messaging/send",
+                "description": "Sends a message.",
+                "file": "messaging.py",
+                "parameters": {
+                    "recipient_id": "string (Required): The ID of the message recipient.",
+                    "content": "string (Required): The content of the message."
+                },
+                "usage": "curl -X POST https://api-sync-branch.yggbranch.dev/messaging/send"
+            },
+            {
+                "method": "GET",
+                "route": "/messaging/retrieve",
+                "description": "Retrieves messages.",
+                "file": "messaging.py",
+                "parameters": {
+                    "conversation_id": "string (Optional): The ID of the conversation to retrieve messages from."
+                },
+                "usage": "curl -X GET https://api-sync-branch.yggbranch.dev/messaging/retrieve"
+            },
+            {
+                "method": "POST",
+                "route": "/messaging/mark",
+                "description": "Marks a message as read.",
+                "file": "messaging.py",
+                "parameters": {
+                    "message_id": "string (Required): The ID of the message to mark as read."
+                },
+                "usage": "curl -X POST https://api-sync-branch.yggbranch.dev/messaging/mark"
+            }
+        ]
+    },
+    {
+        "service": "🗿 Profile Service",
+        "endpoints": [
+            {
+                "method": "GET",
+                "route": "/profile/view",
+                "description": "Views user profile.",
+                "file": "profiles.py",
+                "parameters": {
+                    "user_id": "string (Optional): The ID of the user whose profile is to be viewed. If not provided, the authenticated user's profile will be returned."
+                },
+                "usage": {
+                    "curl": "curl -X GET https://api-sync-branch.yggbranch.dev/profile/view"
+                }
+            },
+            {
+                "method": "PUT",
+                "route": "/profile/update",
+                "description": "Updates profile information.",
+                "file": "profiles.py",
+                "parameters": {
+                    "user_id": "string (Optional): The ID of the user whose profile is to be updated. Only admins can update other users' profiles.",
+                    "profile_data": "JSON (Required): The profile fields to update, e.g., {\"name\": \"new_name\", \"email\": \"new_email\"}."
+                },
+                "usage": {
+                    "curl": "curl -X PUT https://api-sync-branch.yggbranch.dev/profile/update -H 'Content-Type: application/json' -d '{\"profile_data\": {\"name\": \"new_name\"}}'"
+                }
+            }
+        ]
+    }
+]
