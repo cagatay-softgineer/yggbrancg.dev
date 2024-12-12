@@ -64,79 +64,113 @@
 <footer>
     <p>&copy; 2024 API Documentation. All rights reserved.</p>
 </footer>
-    <script>
-        async function loadDocumentation() {
-            const response = await fetch('endpoints.json'); // Fetch the JSON file
-            const data = await response.json();
-
-            const sidebar = document.getElementById('sidebar-content');
-            const content = document.getElementById('content');
-
-            data.forEach((service, serviceIndex) => {
-                // Add service to the sidebar
-                const serviceLink = document.createElement('a');
-                serviceLink.textContent = service.service;
-                serviceLink.onclick = () => showSection(`service-${serviceIndex}`);
-                sidebar.appendChild(serviceLink);
-
-                // Add service section to the content
-                const serviceDiv = document.createElement('section');
-                serviceDiv.id = `service-${serviceIndex}`;
-                serviceDiv.className = 'hidden';
-                serviceDiv.innerHTML = `<h3>${service.service}</h3>`;
-
-                service.endpoints.forEach((endpoint, endpointIndex) => {
-                    const endpointDiv = document.createElement('div');
-                    endpointDiv.className = 'api-tester';
-                    endpointDiv.innerHTML = `
-                        <h5><strong>${endpoint.method}</strong> ${endpoint.route}</h5>
-                        <p class="desc"><strong>Description:</strong> ${endpoint.description}</p>
-                        <p class="param"><strong>Parameters:</strong></p>
-                        <pre>${JSON.stringify(endpoint.parameters, null, 2)}</pre>
-                        <p><strong>Usage Example:</strong></p>
-                        <pre>${JSON.stringify(endpoint.usage, null, 2)}</pre>
-                        <textarea id="service-${serviceIndex}-endpoint-${endpointIndex}-request" class="form-control" rows="5" placeholder='Enter request body or parameters'></textarea>
-                        <button class="btn btn-primary mt-2" onclick="testApi('${endpoint.route}', '${endpoint.method}', 'service-${serviceIndex}-endpoint-${endpointIndex}-request')">Send Request</button>
-                        <div id="service-${serviceIndex}-endpoint-${endpointIndex}-response" class="response-container"></div>
-                        `;
-                    serviceDiv.appendChild(endpointDiv);
-                });
-
-                content.appendChild(serviceDiv);
+<script>
+    async function loadDocumentation() {
+        const response = await fetch('endpoints.json'); // Fetch the JSON file
+        const data = await response.json();
+    
+        const sidebar = document.getElementById('sidebar-content');
+        const content = document.getElementById('content');
+    
+        data.forEach((service, serviceIndex) => {
+            // Add service to the sidebar
+            const serviceLink = document.createElement('a');
+            serviceLink.textContent = service.service;
+            serviceLink.onclick = () => showSection(`service-${serviceIndex}`);
+            sidebar.appendChild(serviceLink);
+    
+            // Add service section to the content
+            const serviceDiv = document.createElement('section');
+            serviceDiv.id = `service-${serviceIndex}`;
+            serviceDiv.className = 'hidden';
+            serviceDiv.innerHTML = `<h3>${service.service}</h3>`;
+    
+            service.endpoints.forEach((endpoint, endpointIndex) => {
+                const endpointDiv = document.createElement('div');
+                endpointDiv.className = 'api-tester';
+    
+                // Ensure IDs are consistent
+                const requestId = `service-${serviceIndex}-endpoint-${endpointIndex}-request`;
+                const responseId = `${requestId}-response`;
+    
+                endpointDiv.innerHTML = `
+                    <h5><strong>${endpoint.method}</strong> ${endpoint.route}</h5>
+                    <p class="desc"><strong>Description:</strong> ${endpoint.description}</p>
+                    <p class="param"><strong>Parameters:</strong></p>
+                    <pre>${JSON.stringify(endpoint.parameters, null, 2)}</pre>
+                    <p><strong>Usage Example:</strong></p>
+                    <pre>${JSON.stringify(endpoint.usage, null, 2)}</pre>
+                    <textarea id="${requestId}" class="form-control" rows="5" placeholder='Enter request body or parameters'></textarea>
+                    <button class="btn btn-primary mt-2" onclick="testApi('${endpoint.route}', '${endpoint.method}', '${requestId}')">Send Request</button>
+                    <div id="${responseId}" class="response-container"></div>
+                `;
+                console.log(`Creating response container with ID ${responseId}`); // Debugging
+    
+                serviceDiv.appendChild(endpointDiv);
             });
+    
+            content.appendChild(serviceDiv);
+        });
+    }
+
+    function showSection(sectionId) {
+        document.querySelectorAll('.content section').forEach(section => {
+            section.classList.add('hidden');
+        });
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.classList.remove('hidden');
+        } else {
+            console.error(`Section with ID ${sectionId} not found!`);
+        }
+    }
+
+    async function testApi(route, method, requestId) {
+        const url = `https://api-sync-branch.yggbranch.dev${route}`;
+        const requestBodyElement = document.getElementById(requestId);
+        const responseElement = document.getElementById(`${requestId}-response`);
+
+        // Ensure the response element exists
+        if (!responseElement) {
+            console.error(`Response element with ID ${requestId}-response not found!`);
+            return;
         }
 
-        function showSection(sectionId) {
-            document.querySelectorAll('.content section').forEach(section => {
-                section.classList.add('hidden');
-            });
-            document.getElementById(sectionId).classList.remove('hidden');
-        }
-
-        async function testApi(route, method, requestId) {
-            const url = `https://api-sync-branch.yggbranch.dev${route}`;
-            const requestBody = document.getElementById(requestId).value;
-            const options = { method, headers: { 'Content-Type': 'application/json' } };
-
-            if (requestBody) {
-                try {
-                    options.body = JSON.stringify(JSON.parse(requestBody));
-                } catch {
-                    document.getElementById(requestId + '-response').textContent = 'Invalid JSON in request body!';
-                    return;
-                }
-            }
-
+        let requestBody = null;
+        if (requestBodyElement && requestBodyElement.value) {
             try {
-                const response = await fetch(url, options);
-                const responseData = await response.json();
-                document.getElementById(requestId + '-response').textContent = JSON.stringify(responseData, null, 2);
+                requestBody = JSON.parse(requestBodyElement.value);
             } catch (error) {
-                document.getElementById(requestId + '-response').textContent = `Error: ${error.message}`;
+                responseElement.textContent = 'Invalid JSON in request body!';
+                return;
             }
         }
 
-        loadDocumentation();
-    </script>
+        const options = {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: requestBody ? JSON.stringify(requestBody) : null,
+        };
+
+        try {
+            const response = await fetch(url, options);
+
+            if (!response.ok) {
+                responseElement.textContent = `Error: ${response.status} ${response.statusText}`;
+                return;
+            }
+
+            const responseData = await response.json();
+            responseElement.textContent = JSON.stringify(responseData, null, 2);
+        } catch (error) {
+            responseElement.textContent = `Error: ${error.message}`;
+        }
+    }
+
+    loadDocumentation();
+</script>
+
 </body>
 </html>
